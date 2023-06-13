@@ -7,8 +7,10 @@ import {
 	getIpRange,
 	cidrToNumericMask,
 	splitIPAndCIDR,
-	calculateSubnetBits,
-	calculateSubnets
+	createSubnets,
+	validateNetmaskStr,
+	ipHasCIDR,
+	validateIpStr
 } from './ip';
 
 describe('cidrToNumericMask', () => {
@@ -212,28 +214,95 @@ describe('Test splitIPAndCIDR()', () => {
 	});
 });
 
-describe('calculateSubnetBits', () => {
-	it('should return the correct number of bits needed for subnetting', () => {
-		// Single subnet
-		expect(calculateSubnetBits(1)).toBe(0);
+describe('ipHasCIDR', () => {
+	it('should correctly validate IP addresses with CIDR notation', () => {
+		// Test Case 1
+		const ipAddress1 = '192.168.0.1/24';
+		const expected1 = true;
+		expect(ipHasCIDR(ipAddress1)).toEqual(expected1);
 
-		// Two subnets
-		expect(calculateSubnetBits(2)).toBe(1);
+		// Test Case 2
+		const ipAddress2 = '10.0.0.0/16';
+		const expected2 = true;
+		expect(ipHasCIDR(ipAddress2)).toEqual(expected2);
 
-		// Four subnets
-		expect(calculateSubnetBits(4)).toBe(2);
+		// Test Case 3
+		const ipAddress3 = '172.16.0.0/12';
+		const expected3 = true;
+		expect(ipHasCIDR(ipAddress3)).toEqual(expected3);
 
-		// Eight subnets
-		expect(calculateSubnetBits(8)).toBe(3);
+		// Test Case 4
+		const ipAddress4 = '255.255.255.0';
+		const expected4 = false;
+		expect(ipHasCIDR(ipAddress4)).toEqual(expected4);
 
-		// Five subnets
-		expect(calculateSubnetBits(5)).toBe(3);
+		// Test Case 5
+		const ipAddress5 = '192.168.0.1/33';
+		const expected5 = false;
+		expect(ipHasCIDR(ipAddress5)).toEqual(expected5);
+	});
+});
 
-		// Sixteen subnets
-		expect(calculateSubnetBits(16)).toBe(4);
+describe('validateIpStr', () => {
+	it('should correctly validate IP addresses with CIDR notation', () => {
+		// Test Case 1
+		const ipAddress1 = '192.168.0.1/24';
+		const expected1 = true;
+		expect(validateIpStr(ipAddress1)).toEqual(expected1);
 
-		// Thirty-two subnets
-		expect(calculateSubnetBits(32)).toBe(5);
+		// Test Case 2
+		const ipAddress2 = '10.0.0.0/16';
+		const expected2 = true;
+		expect(validateIpStr(ipAddress2)).toEqual(expected2);
+
+		// Test Case 3
+		const ipAddress3 = '172.16.0.0/12';
+		const expected3 = true;
+		expect(validateIpStr(ipAddress3)).toEqual(expected3);
+
+		// Test Case 4
+		const ipAddress4 = '255.255.255.0';
+		const expected4 = true;
+		expect(validateIpStr(ipAddress4)).toEqual(expected4);
+
+		// Test Case 5
+		const ipAddress5 = '255.255.256.0';
+		const expected5 = false;
+		expect(validateIpStr(ipAddress5)).toEqual(expected5);
+
+		// Test Case 6
+		const ipAddress6 = '192.168.0.1/33';
+		const expected6 = false;
+		expect(validateIpStr(ipAddress6)).toEqual(expected6);
+	});
+});
+
+describe('validateNetmaskStr', () => {
+	it('should validate netmask correctly', () => {
+		// Test Case 1
+		const netmask1 = '255.255.255.0';
+		const expected1 = true;
+		expect(validateNetmaskStr(netmask1)).toEqual(expected1);
+
+		// Test Case 2
+		const netmask2 = '255.255.0.0';
+		const expected2 = true;
+		expect(validateNetmaskStr(netmask2)).toEqual(expected2);
+
+		// Test Case 3
+		const netmask3 = '255.255.254.0';
+		const expected3 = true;
+		expect(validateNetmaskStr(netmask3)).toEqual(expected3);
+
+		// Test Case 4
+		const netmask4 = '0.0.0.0';
+		const expected4 = false;
+		expect(validateNetmaskStr(netmask4)).toEqual(expected4);
+
+		// Test Case 5
+		const netmask5 = '255.255.255.255';
+		const expected5 = false;
+		expect(validateNetmaskStr(netmask5)).toEqual(expected5);
 	});
 });
 
@@ -251,7 +320,7 @@ describe('calculateSubnets', () => {
 			{ ip: 178881472, mask: 4294967232 } // Subnet 4
 		];
 
-		expect(calculateSubnets(subnetAmount1, ip1, mask1)).toEqual(expectedSubnets1);
+		expect(createSubnets(subnetAmount1, ip1, mask1)).toEqual(expectedSubnets1);
 
 		// Test Case 2
 		const subnetAmount2 = 8;
@@ -269,6 +338,24 @@ describe('calculateSubnets', () => {
 			{ ip: 3232235744, mask: 4294967264 } // Subnet 8
 		];
 
-		expect(calculateSubnets(subnetAmount2, ip2, mask2)).toEqual(expectedSubnets2);
+		expect(createSubnets(subnetAmount2, ip2, mask2)).toEqual(expectedSubnets2);
+
+        // Test Case 2
+		const subnetAmount3 = 5;
+		const ip3 = 3232235520; // 192.168.0.0
+		const mask3 = 4294967040; // 255.255.248.0
+
+		const expectedSubnets3 = [
+			{ ip: 3232235520, mask: 4294967264 }, // Subnet 1
+			{ ip: 3232235552, mask: 4294967264 }, // Subnet 2
+			{ ip: 3232235584, mask: 4294967264 }, // Subnet 3
+			{ ip: 3232235616, mask: 4294967264 }, // Subnet 4
+			{ ip: 3232235648, mask: 4294967264 }, // Subnet 5
+			{ ip: 3232235680, mask: 4294967264 }, // Subnet 6
+			{ ip: 3232235712, mask: 4294967264 }, // Subnet 7
+			{ ip: 3232235744, mask: 4294967264 } // Subnet 8
+		];
+
+		expect(createSubnets(subnetAmount3, ip3, mask3)).toEqual(expectedSubnets3);
 	});
 });

@@ -12,6 +12,31 @@ export function StringToNumericIP(str: string): number | undefined {
 	return parseInt(binStr, 2);
 }
 
+export function validateNetmaskStr(str: string): boolean {
+	const numericMask = StringToNumericIP(str);
+
+	if (!numericMask) return false;
+
+	const binStr = (numericMask >>> 0).toString(2);
+	const regex = /^(1+)(0+)$/;
+
+	return regex.test(binStr);
+}
+
+export function validateIpStr(str: string): boolean {
+	const ipRegex =
+		/^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:\/([0-9]|[1-2][0-9]|3[0-2]))?$/;
+
+	return ipRegex.test(str);
+}
+
+export function ipHasCIDR(str: string): boolean {
+	const ipHasCIDRRegex =
+		/^(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:\/([0-9]|[1-2][0-9]|3[0-2]))$/;
+
+	return ipHasCIDRRegex.test(str);
+}
+
 export function splitIPAndCIDR(str: string): { ip: number; mask: number } | undefined {
 	// Captures ip and cidr, in their own respective groups
 	const ipRegex =
@@ -63,26 +88,22 @@ export function NumericIPToString(ip: number): string {
 	return octets.join('.');
 }
 
-export function calculateSubnetBits(subnetAmount: number): number {
-	return Math.ceil(Math.log2(subnetAmount));
-}
-
-export function calculateSubnets(
+export function createSubnets(
 	subnetAmount: number,
 	ip: number,
 	mask: number
 ): { ip: number; mask: number }[] {
 	ip = getNetworkAddress(ip, mask);
-	const subnetBits = calculateSubnetBits(subnetAmount); // Number of bits needed to represent the subnet amount
+	const subnetBits = calculateSubnetBits(subnetAmount);
 	const newMask = addBitsToMask(mask, subnetBits);
 	const subnetBitsDifference = mask ^ newMask;
 
 	let subnetArr: { ip: number; mask: number }[] = [];
-	for (let i = 0; i < subnetAmount; i++) {
+	for (let i = 0; i < Math.pow(2, subnetBits); i++) {
 		const curSubnetBit = subnetBitsDifference & (i << (32 - countOnes(newMask)));
-		const subnetIP = ip | curSubnetBit;
+		const subnetIP = (ip | curSubnetBit) >>> 0;
 		subnetArr.push({
-			ip: getNetworkAddress(subnetIP >>> 0, newMask),
+			ip: getNetworkAddress(subnetIP, newMask),
 			mask: newMask
 		});
 	}
@@ -90,9 +111,13 @@ export function calculateSubnets(
 	return subnetArr;
 }
 
+function calculateSubnetBits(subnetAmount: number): number {
+	return Math.ceil(Math.log2(subnetAmount));
+}
+
 function addBitsToMask(mask: number, bits: number): number {
-	const netmaskOnes = countOnes(mask); // Count the number of ones in the netmask
-	const bitmask = (1 << bits) - 1; // Create a bitmask with the specified number of bits
+	const netmaskOnes = countOnes(mask);
+	const bitmask = (1 << bits) - 1;
 
 	// Shift the bitmask by the number of ones in the netmask
 	const shiftedBitmask = bitmask << (32 - netmaskOnes - bits);
