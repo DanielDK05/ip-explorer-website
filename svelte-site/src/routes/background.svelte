@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import perlin from '$lib/utils/perlinNoise';
 	import { onMount } from 'svelte';
 
@@ -62,7 +63,7 @@
 
 		const perlinArr = perlin(255, 16, 0.5, 0, Math.floor(window.innerWidth / cellSize));
 
-		perlinArr.forEach((num, index) => {
+		perlinArr.forEach((num: number, index: number) => {
 			ctx.fillStyle = `rgb(${num}, ${num}, ${num})`;
 			ctx.fillRect(index * cellSize, 10, cellSize, window.innerHeight);
 		});
@@ -101,7 +102,7 @@
 </script>
 
 <svelte:head>
-	<link rel="stylesheet" href="/fonts.css" />
+	<link rel="stylesheet" href="{base}/fonts.css" />
 </svelte:head>
 <div id="background" style="background-image: {backgroundStyle}" />
 
