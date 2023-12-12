@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" href="./favicon.png" />
+		<meta name="viewport" content="width=device-width" />
+		
+		<link href="./_app/immutable/assets/2.0aa32d27.css" rel="stylesheet">
+		<link rel="modulepreload" href="./_app/immutable/entry/start.c96fffdb.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/index.858e9eb7.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/singletons.9fb8a48c.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/paths.b9b28075.js">
+		<link rel="modulepreload" href="./_app/immutable/entry/app.a8d94d75.js">
+		<link rel="modulepreload" href="./_app/immutable/nodes/0.ca31ebd4.js">
+		<link rel="modulepreload" href="./_app/immutable/nodes/2.277a924f.js"><!-- HEAD_svelte-10ezk4d_START --><link rel="stylesheet" href="/ip-explorer-website/fonts.css"><!-- HEAD_svelte-10ezk4d_END -->
+		<style>
+			* {
+				font-family: 'Century Gothic';
+			}
+		</style>
+	</head>
+	<body data-sveltekit-preload-data="hover" style="margin: 0">
+		<div style="display: contents">
+
+
+
+<div id="mainContainer" class="svelte-19gphks">
+<div id="background" style="background-image: undefined" class="svelte-8mv3ql"></div>
+	<div id="inputs" class="svelte-19gphks"><h1 id="headline" class="svelte-19gphks">IP Explorer</h1>
+		<input type="text" placeholder="type IP here:" class="svelte-19gphks" value="10.169.131.69">
+		<input type="text" placeholder="type mask here:" class="svelte-19gphks" value="255.255.255.0">
+		<input type="number" placeholder="subnet amount:" class="svelte-19gphks" value="0"></div>
+	<div id="info" class="svelte-19gphks"><p id="ip">IP address: 10.169.131.69</p>
+		<p id="networkMask">Network Mask: 255.255.255.0</p>
+		<p id="networkAddress">Network address: 10.169.131.0</p>
+		<p id="broadcastAddress">Broadcast address: 10.169.131.255</p>
+		<p id="ipRange">IP range: 10.169.131.1-10.169.131.254</p></div>
+	<div id="subnetInfo" class="svelte-19gphks"><h1>Subnets:</h1>
+		<div id="subnets" class="svelte-19gphks"></div></div>
+</div>
+
+
+			
+			<script>
+				{
+					__sveltekit_bhytsv = {
+						assets: "/ip-explorer-website",
+						base: new URL(".", location).pathname.slice(0, -1),
+						env: {}
+					};
+
+					const element = document.currentScript.parentElement;
+
+					const data = [null,null];
+
+					Promise.all([
+						import("./_app/immutable/entry/start.c96fffdb.js"),
+						import("./_app/immutable/entry/app.a8d94d75.js")
+					]).then(([kit, app]) => {
+						kit.start(app, element, {
+							node_ids: [0, 2],
+							data,
+							form: null,
+							error: null
+						});
+					});
+				}
+			</script>
+		</div>
+	</body>
+</html>
